@@ -1,0 +1,30 @@
+#!/usr/bin/env ruby
+require 'project_monitor_stat'
+
+config = ProjectMonitorStat::Config.parse_options(argv: ARGV)
+result = ProjectMonitorStat::Fetcher.new(url: config.url).fetch
+
+case result
+  when :success
+    if config.success_cmd
+      system(config.success_cmd)
+    else
+      exit(0)
+    end
+  when :building
+    if config.building_cmd
+      system(config.building_cmd)
+    else
+      exit(0)
+    end
+  when :fail
+    if config.fail_cmd
+      system(config.fail_cmd)
+    else
+      exit(1)
+    end
+  when :error
+    raise 'Error'
+  else
+    raise 'Unknown Error'
+end
