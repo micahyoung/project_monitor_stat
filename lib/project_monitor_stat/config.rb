@@ -1,5 +1,5 @@
 require 'uri'
-require 'optionparser'
+require 'optparse'
 
 module ProjectMonitorStat
   class Config
