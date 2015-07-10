@@ -1,5 +1,5 @@
 module ProjectMonitorStat
-  VERSION = '0.0.1'
+  VERSION = '0.0.2'
 
   autoload :Config, 'project_monitor_stat/config'
   autoload :Fetcher, 'project_monitor_stat/fetcher'
