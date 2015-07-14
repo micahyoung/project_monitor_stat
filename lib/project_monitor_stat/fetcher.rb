@@ -4,18 +4,14 @@ require 'json'
 module ProjectMonitorStat
   class Fetcher
     def initialize(url: raise, session_id: nil)
-      @uri = URI(url)
+      @url = url
     end
 
     def fetch
-      request = Net::HTTP::Get.new(uri)
-
-      response = Net::HTTP.start(uri.hostname, uri.port) do |http|
-        http.request(request)
-      end
+      json = Util.get(url)
 
       begin
-        projects = JSON.parse(response.body)
+        projects = JSON.parse(json)
       rescue JSON::ParserError
         return :error
       end
@@ -44,6 +40,6 @@ module ProjectMonitorStat
 
     private
 
-    attr_reader :uri
+    attr_reader :url
   end
 end
