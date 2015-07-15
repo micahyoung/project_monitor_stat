@@ -2,6 +2,6 @@
 require 'project_monitor_stat'
 
 config = ProjectMonitorStat::Config.parse_options(argv: ARGV)
-result = ProjectMonitorStat::Fetcher.new(url: config.url).fetch
-ProjectMonitorStat::Reporter.new(config: config, result: result).report
-
+result = ProjectMonitorStat::Fetcher.new(config: config).fetch
+reporter = ProjectMonitorStat::Reporter.new(config: config, result: result)
+reporter.report

@@ -3,12 +3,12 @@ require 'json'
 
 module ProjectMonitorStat
   class Fetcher
-    def initialize(url: raise, session_id: nil)
-      @url = url
+    def initialize(config: raise)
+      @config = config
     end
 
     def fetch
-      json = Util.get(url)
+      json = Util.get(url: config.url, cookie: config.cookie)
 
       begin
         projects = JSON.parse(json)
@@ -40,6 +40,6 @@ module ProjectMonitorStat
 
     private
 
-    attr_reader :url
+    attr_reader :config
   end
 end

@@ -31,12 +31,14 @@ describe 'responding to the result' do
     Timeout.timeout(60) { @server_thread.join(0.1) until TestApp.running? }
   end
 
+  let(:config) { double(:config, url: url, cookie: nil) }
+
   context 'when project build status is success' do
     context 'and project is building' do
       let(:url) { 'http://localhost:4567/building_projects' }
 
       it 'success' do
-        result = ProjectMonitorStat::Fetcher.new(url: url).fetch
+        result = ProjectMonitorStat::Fetcher.new(config: config).fetch
         expect(result).to eq :building
       end
     end
@@ -45,7 +47,7 @@ describe 'responding to the result' do
       let(:url) { 'http://localhost:4567/success_projects' }
 
       it 'success' do
-        result = ProjectMonitorStat::Fetcher.new(url: url).fetch
+        result = ProjectMonitorStat::Fetcher.new(config: config).fetch
         expect(result).to eq :success
       end
     end
@@ -55,7 +57,7 @@ describe 'responding to the result' do
     let(:url) { 'http://localhost:4567/fail_projects' }
 
     it 'fails' do
-      result = ProjectMonitorStat::Fetcher.new(url: url).fetch
+      result = ProjectMonitorStat::Fetcher.new(config: config).fetch
       expect(result).to eq :fail
     end
   end
@@ -64,7 +66,7 @@ describe 'responding to the result' do
     let(:url) { 'http://localhost:4567//error' }
 
     it 'fails' do
-      result = ProjectMonitorStat::Fetcher.new(url: url).fetch
+      result = ProjectMonitorStat::Fetcher.new(config: config).fetch
       expect(result).to eq :error
     end
   end
