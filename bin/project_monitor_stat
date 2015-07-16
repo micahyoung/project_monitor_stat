@@ -1,4 +1,6 @@
 #!/usr/bin/env ruby
+$LOAD_PATH.unshift("#{File.dirname(__FILE__)}/../lib")
+
 require 'project_monitor_stat'
 
 config = ProjectMonitorStat::Config.parse_options(argv: ARGV)

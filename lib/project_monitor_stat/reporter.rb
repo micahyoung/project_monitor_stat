@@ -26,7 +26,7 @@ module ProjectMonitorStat
             Util.puts result
           end
         when :error
-          raise 'Error'
+          Util.puts result
         else
           raise 'Unknown Error'
       end

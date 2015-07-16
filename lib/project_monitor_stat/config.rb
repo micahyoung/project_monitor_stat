@@ -26,9 +26,10 @@ module ProjectMonitorStat
           instance.fail_cmd = s
         end
 
-        opts.on('-u', '--url',
+        opts.on('-uURL', '--url URL',
                 'Your projectMonitor url ',
                 "  Default: #{instance.base_url}") do |u|
+
           instance.base_url = u
         end
 
