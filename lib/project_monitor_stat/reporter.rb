@@ -25,7 +25,7 @@ module ProjectMonitorStat
           else
             Util.puts result
           end
-        when :error
+        when :error_invalid_json, :error_no_projects, :error_invalid_project_attributes
           Util.puts result
         else
           raise 'Unknown Error'

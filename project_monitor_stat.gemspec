@@ -19,4 +19,5 @@ Gem::Specification.new do |s|
   s.license       = 'MIT'
   s.add_development_dependency 'rspec', '~> 3.2'
   s.add_development_dependency 'sinatra', '~> 1.4'
+  s.add_development_dependency 'sinatra-contrib', '~> 1.4'
 end

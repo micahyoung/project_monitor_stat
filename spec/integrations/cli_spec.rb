@@ -1,11 +1,20 @@
 require 'rspec'
-require 'sinatra'
+require 'sinatra/base'
+require 'sinatra/cookies'
 require 'timeout'
 require 'json'
 
 class TestApp < Sinatra::Base
+  helpers Sinatra::Cookies
+
   get '/success_projects' do
     JSON.generate [{build: {status: 'success', building: false}}]
+  end
+
+  get '/success_if_cookies_projects' do
+    if cookies['foo'] == 'bar'
+      JSON.generate [{build: {status: 'success', building: false}}]
+    end
   end
 
   get '/building_projects' do
@@ -31,21 +40,32 @@ describe 'responding to the result' do
   end
 
   context 'when project build status is success' do
+    context 'and project is not building' do
+      context 'and cookies are not required' do
+        let(:url) { 'http://localhost:4567/success_projects' }
+
+        it 'returns success' do
+          result = `bin/project_monitor_stat mytag -u #{url}`
+          expect(result).to include 'success'
+        end
+      end
+
+      context 'and cookies are required' do
+        let(:url) { 'http://localhost:4567/success_if_cookies_projects' }
+
+        it 'returns success' do
+          result = `bin/project_monitor_stat mytag -c'foo=bar' -u #{url}`
+          expect(result).to include 'success'
+        end
+      end
+    end
+
     context 'and project is building' do
       let(:url) { 'http://localhost:4567/building_projects' }
 
       it 'returns building' do
-        result = `bin/project_monitor_stat -u #{url}`
+        result = `bin/project_monitor_stat mytag -u #{url}`
         expect(result).to include 'building'
-      end
-    end
-
-    context 'and project is not building' do
-      let(:url) { 'http://localhost:4567/success_projects' }
-
-      it 'returns success' do
-        result = `bin/project_monitor_stat -u #{url}`
-        expect(result).to include 'success'
       end
     end
   end
@@ -54,7 +74,7 @@ describe 'responding to the result' do
     let(:url) { 'http://localhost:4567/fail_projects' }
 
     it 'returns fail' do
-      result = `bin/project_monitor_stat -u #{url}`
+      result = `bin/project_monitor_stat mytag -u #{url}`
       expect(result).to include 'fail'
     end
   end
@@ -63,7 +83,7 @@ describe 'responding to the result' do
     let(:url) { 'http://localhost:4567/error' }
 
     it 'returns error' do
-      result = `bin/project_monitor_stat -u #{url}`
+      result = `bin/project_monitor_stat mytag -u #{url}`
       expect(result).to include 'error'
     end
   end

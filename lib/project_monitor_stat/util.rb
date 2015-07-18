@@ -1,3 +1,6 @@
+require 'net/http'
+require 'uri'
+
 module ProjectMonitorStat
   class Util
     def self.puts(*args)

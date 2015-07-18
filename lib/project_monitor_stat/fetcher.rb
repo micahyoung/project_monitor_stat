@@ -1,4 +1,3 @@
-require 'net/http'
 require 'json'
 
 module ProjectMonitorStat
@@ -13,21 +12,25 @@ module ProjectMonitorStat
       begin
         projects = JSON.parse(json)
       rescue JSON::ParserError
-        return :error
+        return :error_invalid_json
+      end
+
+      if projects.empty?
+        return :error_no_projects
       end
 
       begin
-        success_results = projects.map do |project|
+        status_successes = projects.map do |project|
           project.fetch('build').fetch('status') == 'success'
         end
         building_results = projects.map do |project|
           project.fetch('build').fetch('building')
         end
-      rescue JSON::ParserError, TypeError
-        return :error
+      rescue JSON::ParserError, KeyError, TypeError
+        return :error_invalid_project_attributes
       end
 
-      if success_results.all?
+      if status_successes.all?
         if building_results.any?
           :building
         else
