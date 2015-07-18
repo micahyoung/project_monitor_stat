@@ -8,12 +8,16 @@ class TestApp < Sinatra::Base
   helpers Sinatra::Cookies
 
   get '/success_projects' do
-    JSON.generate [{build: {status: 'success', building: false}}]
+    JSON.generate [{build: {status: 'success', building: false, published_at: Time.now}}]
+  end
+
+  get '/success_idle_projects' do
+    JSON.generate [{build: {status: 'success', building: false, published_at: Time.now - 1000}}]
   end
 
   get '/success_if_cookies_projects' do
     if cookies['foo'] == 'bar'
-      JSON.generate [{build: {status: 'success', building: false}}]
+      JSON.generate [{build: {status: 'success', building: false, published_at: Time.now}}]
     end
   end
 
@@ -56,6 +60,15 @@ describe 'responding to the result' do
         it 'returns success' do
           result = `bin/project_monitor_stat mytag -c'foo=bar' -u #{url}`
           expect(result).to include 'success'
+        end
+      end
+
+      context 'and the success is older than the idle minutes' do
+        let(:url) { 'http://localhost:4567/success_idle_projects' }
+
+        it 'returns idle' do
+          result = `bin/project_monitor_stat mytag -u #{url}`
+          expect(result).to include 'idle'
         end
       end
     end

@@ -8,6 +8,7 @@ module ProjectMonitorStat
       instance = new
       instance.tag = tag
       instance.base_url = 'http://pulse.pivotallabs.com/projects.json'
+      instance.idle_seconds = 600
 
       opt_parser = OptionParser.new do |opts|
         opts.banner = "Usage: #{File.basename(__FILE__)} tag [options]"
@@ -15,6 +16,16 @@ module ProjectMonitorStat
         opts.on('-sCOMMAND', '--success COMMAND',
                 'Command after success') do |s|
           instance.success_cmd = s
+        end
+
+        opts.on('-iCOMMAND', '--idle COMMAND',
+                'Command when idle after success') do |i|
+          instance.idle_cmd = i
+        end
+
+        opts.on('--idle-seconds SECONDS',
+                'Seconds after which a success build is idle') do |is|
+          instance.idle_seconds = is.to_i
         end
 
         opts.on('-bCOMMAND', '--building COMMAND',
@@ -56,7 +67,7 @@ module ProjectMonitorStat
       instance
     end
 
-    attr_accessor :tag, :base_url, :success_cmd, :building_cmd, :fail_cmd, :cookie
+    attr_accessor :tag, :base_url, :success_cmd, :building_cmd, :fail_cmd, :idle_cmd, :idle_seconds, :cookie
 
     def url
       uri = URI(base_url)

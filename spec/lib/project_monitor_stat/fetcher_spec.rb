@@ -2,38 +2,52 @@ require 'project_monitor_stat'
 
 describe ProjectMonitorStat::Fetcher do
   describe '#fetch' do
-    context 'with all success projects' do
-      context 'and not building' do
-        it 'returns success' do
-          config = double(:config, url: 'http://example.com', cookie: nil)
-          projects_json = [
-              {build: {status: 'success', building: false}}
-          ].to_json
+    context 'when not building' do
+      context 'and all success projects' do
+        context 'and no config idle time' do
+          it 'returns success' do
+            config = double(:config, url: 'http://example.com', cookie: nil, idle_seconds: nil)
+            projects_json = [
+                {build: {status: 'success', building: false}}
+            ].to_json
 
-          allow(ProjectMonitorStat::Util).to receive(:get).with(url: 'http://example.com', cookie: nil).and_return(projects_json)
+            allow(ProjectMonitorStat::Util).to receive(:get).with(url: 'http://example.com', cookie: nil).and_return(projects_json)
 
-          reporter = ProjectMonitorStat::Fetcher.new(config: config)
-          expect(reporter.fetch).to eq :success
+            reporter = ProjectMonitorStat::Fetcher.new(config: config)
+            expect(reporter.fetch).to eq :success
+          end
+        end
+
+        context 'and the most recent build time exceeds the idle time' do
+          it 'returns success' do
+            config = double(:config, url: 'http://example.com', cookie: nil, idle_seconds: 1000)
+            projects_json = [
+                {build: {status: 'success', building: false, published_at: Time.now - 1100}}
+            ].to_json
+
+            allow(ProjectMonitorStat::Util).to receive(:get).with(url: 'http://example.com', cookie: nil).and_return(projects_json)
+
+            reporter = ProjectMonitorStat::Fetcher.new(config: config)
+            expect(reporter.fetch).to eq :idle
+          end
+        end
+
+        context 'and the most recent build time is less than the idle time' do
+          it 'returns success' do
+            config = double(:config, url: 'http://example.com', cookie: nil, idle_seconds: 1000)
+            projects_json = [
+                {build: {status: 'success', building: false, published_at: Time.now - 900}}
+            ].to_json
+
+            allow(ProjectMonitorStat::Util).to receive(:get).with(url: 'http://example.com', cookie: nil).and_return(projects_json)
+
+            reporter = ProjectMonitorStat::Fetcher.new(config: config)
+            expect(reporter.fetch).to eq :success
+          end
         end
       end
 
-      context 'and building' do
-        it 'returns building' do
-          config = double(:config, url: 'http://example.com', cookie: nil)
-          projects_json = [
-              {build: {status: 'success', building: true}}
-          ].to_json
-
-          allow(ProjectMonitorStat::Util).to receive(:get).with(url: 'http://example.com', cookie: nil).and_return(projects_json)
-
-          reporter = ProjectMonitorStat::Fetcher.new(config: config)
-          expect(reporter.fetch).to eq :building
-        end
-      end
-    end
-
-    context 'with any fail projects' do
-      context 'and not building' do
+      context 'and any fail projects' do
         it 'returns fail' do
           config = double(:config, url: 'http://example.com', cookie: nil)
           projects_json = [
@@ -46,8 +60,10 @@ describe ProjectMonitorStat::Fetcher do
           expect(reporter.fetch).to eq :fail
         end
       end
+    end
 
-      context 'and building' do
+    context 'when building' do
+      context 'and all success projects' do
         it 'returns building' do
           config = double(:config, url: 'http://example.com', cookie: nil)
           projects_json = [
@@ -58,6 +74,20 @@ describe ProjectMonitorStat::Fetcher do
 
           reporter = ProjectMonitorStat::Fetcher.new(config: config)
           expect(reporter.fetch).to eq :building
+        end
+      end
+
+      context 'and any fail projects' do
+        it 'returns building' do
+          config = double(:config, url: 'http://example.com', cookie: nil)
+          projects_json = [
+              {build: {status: 'fail', building: true}}
+          ].to_json
+
+          allow(ProjectMonitorStat::Util).to receive(:get).with(url: 'http://example.com', cookie: nil).and_return(projects_json)
+
+          reporter = ProjectMonitorStat::Fetcher.new(config: config)
+          expect(reporter.fetch).to eq :fail
         end
       end
     end

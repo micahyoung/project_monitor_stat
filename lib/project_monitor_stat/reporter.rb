@@ -25,6 +25,12 @@ module ProjectMonitorStat
           else
             Util.puts result
           end
+        when :idle
+          if config.idle_cmd
+            Util.system(config.idle_cmd)
+          else
+            Util.puts result
+          end
         when :error_invalid_json, :error_no_projects, :error_invalid_project_attributes
           Util.puts result
         else

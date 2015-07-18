@@ -1,4 +1,5 @@
 require 'json'
+require 'time'
 
 module ProjectMonitorStat
   class Fetcher
@@ -20,7 +21,7 @@ module ProjectMonitorStat
       end
 
       begin
-        status_successes = projects.map do |project|
+        sucesss_results = projects.map do |project|
           project.fetch('build').fetch('status') == 'success'
         end
         building_results = projects.map do |project|
@@ -30,11 +31,24 @@ module ProjectMonitorStat
         return :error_invalid_project_attributes
       end
 
-      if status_successes.all?
+      if sucesss_results.all?
         if building_results.any?
           :building
         else
-          :success
+          if config.idle_seconds
+            recent_results = projects.map do |project|
+              published_at = Time.parse(project.fetch('build').fetch('published_at'))
+              published_at > (Time.now - config.idle_seconds)
+            end
+
+            if recent_results.any?
+              :success
+            else
+              :idle
+            end
+          else
+            :success
+          end
         end
       else
         :fail
