@@ -4,14 +4,30 @@ require 'optparse'
 module ProjectMonitorStat
   class Config
     def self.parse_options(argv: raise)
-      tag = argv[0] || raise(ArgumentError.new('You must provide a tag'))
       instance = new
-      instance.tag = tag
       instance.base_url = 'http://pulse.pivotallabs.com/projects.json'
       instance.idle_seconds = 600
 
       opt_parser = OptionParser.new do |opts|
-        opts.banner = "Usage: #{File.basename(__FILE__)} tag [options]"
+        opts.banner = 'Usage: project_monitor_stat [options]'
+
+        opts.on('-t tag1,tag2', '--tags tag1,tag2,tag3', Array,
+                'Project Monitor tags') do |t|
+          instance.tags = t
+        end
+
+        opts.on('-g', '--git-author-tags',
+                'Use current git author username@ or pair+usernames@ for tags') do
+          git_email_parser = GitEmailParser.new
+
+          if git_email_parser.username_tags.empty?
+            Util.puts "Error: Invalid git email: '#{git_email_parser.git_email}'"
+            Util.puts opts
+            exit(1)
+          end
+
+          instance.tags = git_email_parser.username_tags
+        end
 
         opts.on('-sCOMMAND', '--success COMMAND',
                 'Command after success') do |s|
@@ -52,12 +68,12 @@ module ProjectMonitorStat
         end
 
         opts.on_tail('-h', '--help', 'Show this message') do
-          puts opts
+          Util.puts opts
           exit
         end
 
         opts.on_tail('--version', 'Show version') do
-          puts VERSION
+          Util.puts VERSION
           exit
         end
       end
@@ -67,11 +83,11 @@ module ProjectMonitorStat
       instance
     end
 
-    attr_accessor :tag, :base_url, :success_cmd, :building_cmd, :fail_cmd, :idle_cmd, :idle_seconds, :cookie
+    attr_accessor :tags, :base_url, :success_cmd, :building_cmd, :fail_cmd, :idle_cmd, :idle_seconds, :cookie
 
     def url
       uri = URI(base_url)
-      uri.query = "tags=#{tag}"
+      uri.query = "tags=#{tags.join(',')}"
       uri
     end
   end

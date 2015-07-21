@@ -11,6 +11,10 @@ module ProjectMonitorStat
       Kernel.system(*args)
     end
 
+    def self.x(command)
+      %x(#{command}).chomp
+    end
+
     def self.get(url: raise, cookie: nil)
       uri = URI(url)
       request = Net::HTTP::Get.new(uri)

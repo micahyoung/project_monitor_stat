@@ -49,7 +49,7 @@ describe 'responding to the result' do
         let(:url) { 'http://localhost:4567/success_projects' }
 
         it 'returns success' do
-          result = `bin/project_monitor_stat mytag -u #{url}`
+          result = `bin/project_monitor_stat -t mytag -u #{url}`
           expect(result).to include 'success'
         end
       end
@@ -58,7 +58,7 @@ describe 'responding to the result' do
         let(:url) { 'http://localhost:4567/success_if_cookies_projects' }
 
         it 'returns success' do
-          result = `bin/project_monitor_stat mytag -c'foo=bar' -u #{url}`
+          result = `bin/project_monitor_stat -t mytag -c'foo=bar' -u #{url}`
           expect(result).to include 'success'
         end
       end
@@ -67,7 +67,7 @@ describe 'responding to the result' do
         let(:url) { 'http://localhost:4567/success_idle_projects' }
 
         it 'returns idle' do
-          result = `bin/project_monitor_stat mytag -u #{url}`
+          result = `bin/project_monitor_stat -t mytag -u #{url}`
           expect(result).to include 'idle'
         end
       end
@@ -77,7 +77,7 @@ describe 'responding to the result' do
       let(:url) { 'http://localhost:4567/building_projects' }
 
       it 'returns building' do
-        result = `bin/project_monitor_stat mytag -u #{url}`
+        result = `bin/project_monitor_stat -t mytag -u #{url}`
         expect(result).to include 'building'
       end
     end
@@ -87,7 +87,7 @@ describe 'responding to the result' do
     let(:url) { 'http://localhost:4567/fail_projects' }
 
     it 'returns fail' do
-      result = `bin/project_monitor_stat mytag -u #{url}`
+      result = `bin/project_monitor_stat -t mytag -u #{url}`
       expect(result).to include 'fail'
     end
   end
@@ -96,7 +96,7 @@ describe 'responding to the result' do
     let(:url) { 'http://localhost:4567/error' }
 
     it 'returns error' do
-      result = `bin/project_monitor_stat mytag -u #{url}`
+      result = `bin/project_monitor_stat -t mytag -u #{url}`
       expect(result).to include 'error'
     end
   end
