@@ -5,6 +5,7 @@ module ProjectMonitorStat
   class Config
     def self.parse_options(argv: raise)
       instance = new
+      instance.tags = []
       instance.base_url = 'http://pulse.pivotallabs.com/projects.json'
       instance.idle_seconds = 600
 
@@ -13,7 +14,7 @@ module ProjectMonitorStat
 
         opts.on('-t tag1,tag2', '--tags tag1,tag2,tag3', Array,
                 'Project Monitor tags') do |t|
-          instance.tags = t
+          instance.tags |= t
         end
 
         opts.on('-g', '--git-author-tags',
@@ -26,7 +27,7 @@ module ProjectMonitorStat
             exit(1)
           end
 
-          instance.tags = git_email_parser.username_tags
+          instance.tags |= git_email_parser.username_tags
         end
 
         opts.on('-sCOMMAND', '--success COMMAND',
@@ -79,6 +80,12 @@ module ProjectMonitorStat
       end
 
       opt_parser.parse!(argv)
+
+      if instance.tags.empty?
+        Util.puts "Error: At least one tag required"
+        Util.puts opt_parser.help
+        exit(1)
+      end
 
       instance
     end
