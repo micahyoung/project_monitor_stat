@@ -8,11 +8,21 @@ Note: This examples uses a [blink1 usb dongle](http://blink1.thingm.com/) and ch
 1. Set up your Project Monitor project and verify it works.
 2. Edit your project and a unique tag to that you can use just for your personal build monitor.
   * For git and git-pair author detection (`-g`), set your tag to match your email username (ie: `micahyoung` when git config user.email is set to `micahyoung@my-project.com` or `pair+micahyoung+buddy@my-project.com`)
-2. Install the gem: `gem install project_monitor_stat`
-3. Add a `crontab` entry
+2. Install the gem: 
+ ```sh
+ gem install project_monitor_stat
+ ```
+ 
+3. Run the bin manually, with only the tag, to verify everything works.
+ ```sh
+ $ project_monitor_stat --tags micahyoung
+ success
+ ```
+ 
+4. Add a `crontab` entry with callbacks.
   ```crontab
   * * * * * project_monitor_stat --tags micahyoung --success 'blink1-tool --green' --fail 'blink1-tool --red'
   ```
 
-4. Push code, lights change.
-5. Check out the other fancy options and customize!
+5. Push code, lights change.
+6. Check out the other fancy options and customize!
