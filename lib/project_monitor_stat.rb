@@ -1,5 +1,5 @@
 module ProjectMonitorStat
-  VERSION = '0.0.7'
+  VERSION = '0.0.8'
 
   autoload :Config, 'project_monitor_stat/config'
   autoload :GitEmailParser, 'project_monitor_stat/git_email_parser'
